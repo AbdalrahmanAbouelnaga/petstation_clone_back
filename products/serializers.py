@@ -49,17 +49,27 @@ class ProductListSerializer(serializers.ModelSerializer):
             "id",
             "url",
             "title",
-            "size",
             "brand",
             "has_variants",
             "variants",
             "images",
-            "price",
         )
 
 class SubCategoryDetailSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
-    products = ProductListSerializer(many=True)
+    products = serializers.SerializerMethodField()
+
+
+    def get_products(self,obj):
+        prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.category.animal.slug,sub_category__category=obj.category,sub_category=obj)
+        sizes = self.context.get("request").query_params.get('sizes')
+        brands = self.context.get("request").query_params.get('brands')
+        if sizes is not None:
+            prods = prods.filter(Q(variants__size=sizes))
+        if brands is not None:
+            prods = prods.filter(Q(brand__slug=brands))
+        data =  ProductListSerializer(prods,many=True,context={"request":self.context.get("request")}).data
+        return data
 
     def get_url(self,obj):
         return reverse("sub_category-detail",kwargs={"animal_slug":obj.category.animal.slug,
@@ -81,6 +91,12 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
     def get_products(self,obj):
         prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.category.animal.slug,sub_category__category=obj.category,sub_category=obj)
+        sizes = self.context.get("request").query_params.get('sizes')
+        brands = self.context.get("request").query_params.get('brands')
+        if sizes is not None:
+            prods = prods.filter(Q(variants__size=sizes))
+        if brands is not None:
+            prods = prods.filter(Q(brand__slug=brands))
         data =  ProductListSerializer(prods,many=True,context={"request":self.context.get("request")}).data
         return data
 
@@ -105,6 +121,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_products(self,obj):
         prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.animal.slug,sub_category__category=obj)
+        sizes = self.context.get("request").query_params.get('sizes')
+        brands = self.context.get("request").query_params.get('brands')
+        if sizes is not None:
+            prods = prods.filter(Q(variants__size = sizes) )
+        if brands is not None:
+            prods = prods.filter(Q(brand__slug=brands))
         data =  ProductListSerializer(prods,many=True,context={"request":self.context.get("request")}).data
         return data
 
@@ -124,31 +146,23 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class AnimalSerializer(serializers.ModelSerializer):
-    url = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
 
     def get_products(self,obj):
+        prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.slug)
         sizes = self.context.get("request").query_params.get('sizes')
         brands = self.context.get("request").query_params.get('brands')
-        prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.slug)
-        print(brands)
         if sizes is not None:
-            prods = prods.filter(Q(size = sizes) | Q(variants__size=sizes))
+            prods = prods.filter(Q(variants__size=sizes))
         if brands is not None:
             prods = prods.filter(Q(brand__slug=brands))
         data =  ProductListSerializer(prods,many=True,context={"request":self.context.get("request")}).data
         return data
 
-    def get_url(self,obj):
-        return reverse("animal-detail",kwargs={"slug":obj.slug})
     class Meta:
         model = models.Animal
         fields = (
-            "id",
-            "url",
-            "title",
             "products",
-            "image"
         )
 
 

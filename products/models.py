@@ -44,8 +44,6 @@ class Product(models.Model):
     title = models.CharField(max_length=400)
     slug = models.SlugField(editable=False)
     has_variants = models.BooleanField(default=False)
-    size = models.CharField(max_length=10)
-    price = models.DecimalField(max_digits=6,decimal_places=2)
     sub_category = models.ForeignKey(SubCategory,related_name="products",on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand,on_delete=models.CASCADE,related_name="products")
 
