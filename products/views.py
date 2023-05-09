@@ -3,6 +3,8 @@ from . import serializers,models
 from rest_framework import viewsets,mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from homepage.models import Brand
+from homepage.serializers import BrandSerializer
 
 # Create your views here.
 
@@ -65,7 +67,11 @@ def get_product(request,slug,animal_slug,category_slug,sub_category_slug):
     serializer = serializers.ProductListSerializer(data,context={"request":request})
     return Response(serializer.data,200)
 
-class NavbarView(mixins.ListModelMixin,viewsets.GenericViewSet):
+@api_view(["GET"])
+def NavbarView(request):
     serializer_class = serializers.NavAnimalSerializer
-    queryset = models.Animal.objects.all()
-
+    animalData = models.Animal.objects.all()
+    brandData = Brand.objects.all()
+    serializer1 = serializers.NavAnimalSerializer(animalData,many=True,context={"request":request})
+    serializer2 = BrandSerializer(brandData,many=True,context={"request":request})
+    return Response({"animals":serializer1.data,"brands":serializer2.data})

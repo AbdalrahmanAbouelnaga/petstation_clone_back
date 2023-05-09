@@ -64,6 +64,11 @@ class SubCategoryDetailSerializer(serializers.ModelSerializer):
         prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.category.animal.slug,sub_category__category=obj.category,sub_category=obj)
         sizes = self.context.get("request").query_params.get('sizes')
         brands = self.context.get("request").query_params.get('brands')
+        low = self.context.get("request").query_params.get("low")
+        high = self.context.get("request").query_params.get("high")
+        if low is not None:
+            if high is not None:
+                prods = prods.filter(Q(variants__price__range=(low,high)))
         if sizes is not None:
             prods = prods.filter(Q(variants__size=sizes))
         if brands is not None:
@@ -93,6 +98,11 @@ class SubCategorySerializer(serializers.ModelSerializer):
         prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.category.animal.slug,sub_category__category=obj.category,sub_category=obj)
         sizes = self.context.get("request").query_params.get('sizes')
         brands = self.context.get("request").query_params.get('brands')
+        low = self.context.get("request").query_params.get("low")
+        high = self.context.get("request").query_params.get("high")
+        if low is not None:
+            if high is not None:
+                prods = prods.filter(Q(variants__price__range=(low,high)))
         if sizes is not None:
             prods = prods.filter(Q(variants__size=sizes))
         if brands is not None:
@@ -123,6 +133,11 @@ class CategorySerializer(serializers.ModelSerializer):
         prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.animal.slug,sub_category__category=obj)
         sizes = self.context.get("request").query_params.get('sizes')
         brands = self.context.get("request").query_params.get('brands')
+        low = self.context.get("request").query_params.get("low")
+        high = self.context.get("request").query_params.get("high")
+        if low is not None:
+            if high is not None:
+                prods = prods.filter(Q(variants__price__range=(low,high)))
         if sizes is not None:
             prods = prods.filter(Q(variants__size = sizes) )
         if brands is not None:
@@ -152,6 +167,11 @@ class AnimalSerializer(serializers.ModelSerializer):
         prods = models.Product.objects.filter(sub_category__category__animal__slug=obj.slug)
         sizes = self.context.get("request").query_params.get('sizes')
         brands = self.context.get("request").query_params.get('brands')
+        low = self.context.get("request").query_params.get("low")
+        high = self.context.get("request").query_params.get("high")
+        if low is not None:
+            if high is not None:
+                prods = prods.filter(Q(variants__price__range=(low,high)))
         if sizes is not None:
             prods = prods.filter(Q(variants__size=sizes))
         if brands is not None:
